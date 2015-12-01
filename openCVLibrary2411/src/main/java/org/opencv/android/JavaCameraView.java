@@ -1,5 +1,7 @@
 package org.opencv.android;
 
+import java.util.List;
+
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
@@ -14,8 +16,6 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-
-import java.util.List;
 
 /**
  * This class is an implementation of the Bridge View between OpenCV and Java Camera.
@@ -137,7 +137,6 @@ public class JavaCameraView extends CameraBridgeViewBase implements PreviewCallb
             /* Now set camera parameters */
             try {
                 Camera.Parameters params = mCamera.getParameters();
-                params.setPreviewFpsRange(30000, 30000); // pomembna vrstica
                 Log.d(TAG, "getSupportedPreviewSizes()");
                 List<android.hardware.Camera.Size> sizes = params.getSupportedPreviewSizes();
 

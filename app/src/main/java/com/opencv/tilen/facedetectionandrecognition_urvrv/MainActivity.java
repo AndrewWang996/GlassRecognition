@@ -158,7 +158,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         {
             switch (item.getItemId())
             {
-               case R.id.itemDetect:
+                case R.id.itemDetect:
                     checkFacesOnImage();
                     break;
             }
@@ -180,17 +180,17 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // This is called right before the menu is shown, every time it is shown.
-            if(isSubmenuAdded == false) {
-                SubMenu submenu = menu.addSubMenu(0, -1, 1, getString(R.string.resolutions));
-                int index = 0;
-                String textToDisplay;
-                for(Camera.Size resolution : cameraResolutions)
-                {
-                        textToDisplay = resolution.width + " x " + resolution.height;
-                        submenu.add(0, index, Menu.NONE, textToDisplay);
-                        index++;
-                }
-                maxIndexResolution = index;
+        if(isSubmenuAdded == false) {
+            SubMenu submenu = menu.addSubMenu(0, -1, 1, getString(R.string.resolutions));
+            int index = 0;
+            String textToDisplay;
+            for(Camera.Size resolution : cameraResolutions)
+            {
+                textToDisplay = resolution.width + " x " + resolution.height;
+                submenu.add(0, index, Menu.NONE, textToDisplay);
+                index++;
+            }
+            maxIndexResolution = index;
                 /*
                     submenu = menu.addSubMenu(0, -2,2 , getString(R.string.fps_ranges));
                     for(int[] fpsRange : cameraFpsRanges)
@@ -200,8 +200,8 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
                     index++;
                 }
                 */
-                isSubmenuAdded = true;
-            }
+            isSubmenuAdded = true;
+        }
         return true;
     }
 
@@ -293,7 +293,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     public void onOptionsMenuClosed(Menu menu) { // called when you select an Item Menu or just cancel Menu
         Global.LogDebug("MainActivity.onOptionsMenuClosed");
         //TODO check if this is proper
-         showCameraView();
+        showCameraView();
         super.onOptionsMenuClosed(menu);
     }
 
@@ -411,7 +411,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         for(int i = 0; i < cameraResolutions.size();)
         {
             Camera.Size resolution = cameraResolutions.get(i);
-            if(resolution.width <= screenWidth && resolution.height <= screenHeight) {
+            if(resolution.width < screenWidth && resolution.height < screenHeight) {
                 i++;
             }
             else
@@ -444,7 +444,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
             startActivity(intent);
         }
         else {
-           // mIndeterminate.hide();
+            // mIndeterminate.hide();
             AlertDialog alertDialog = new AlertDialog(this, R.drawable.ic_warning_150, R.string.no_face, R.string.tap_to_capture);
             alertDialog.setCancelable(true);
             alertDialog.show();

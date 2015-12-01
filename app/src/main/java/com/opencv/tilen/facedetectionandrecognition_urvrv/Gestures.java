@@ -8,7 +8,7 @@ import com.google.android.glass.touchpad.GestureDetector;
 /**
  * Created by Tilen on 11.6.2015.
  */
-public class Gestures extends GestureDetector implements GestureDetector.BaseListener{
+public class Gestures extends GestureDetector implements GestureDetector.BaseListener {
     OnGesturesCallback mCallback;
 
 
@@ -16,6 +16,7 @@ public class Gestures extends GestureDetector implements GestureDetector.BaseLis
     {
         void onThreeTap();
     }
+
     public Gestures(Context context, OnGesturesCallback callback)
     {
         super(context);

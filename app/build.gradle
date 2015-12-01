@@ -32,9 +32,9 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    provided fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'org.bytedeco:javacv:0.11'
+    compile 'org.bytedeco.javacpp-presets:opencv:2.4.9-0.9'
     compile project(':openCVLibrary2411')
-    compile group: 'org.bytedeco', name: 'javacv', version: '0.11'
-    compile group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '2.4.9-0.9', classifier:    'android-arm'
-
+    compile project(':openCVLibrary2411')
 }

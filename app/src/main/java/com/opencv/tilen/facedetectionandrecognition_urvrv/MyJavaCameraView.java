@@ -17,10 +17,17 @@ public class MyJavaCameraView extends JavaCameraView {
 
     }
 
+    public void setResolution(int resolutionWidth, int resolutionHeight) {
+        disconnectCamera();
+        mMaxWidth = resolutionWidth;
+        mMaxHeight = resolutionHeight;
+        connectCamera(getWidth(), getHeight());
+    }
+
     public void setResolution(Camera.Size resolution) {
         disconnectCamera();
-        mMaxHeight = resolution.height;
         mMaxWidth = resolution.width;
+        mMaxHeight = resolution.height;
         connectCamera(getWidth(), getHeight());
     }
 

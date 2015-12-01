@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion "Google Inc.:Glass Development Kit Preview:19"
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 14
+    buildToolsVersion "19.1.0"
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 22
+        minSdkVersion 8
+        targetSdkVersion 8
     }
 
     buildTypes {
