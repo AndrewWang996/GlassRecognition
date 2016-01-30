@@ -48,4 +48,16 @@
         </menu>
     </item>
 
+    <item
+        android:id="@+id/itemCokeRecognition"
+        android:orderInCategory="7"
+        android:title="@string/coke_detection"
+        >
+        <menu>
+            <item
+                android:id="@+id/itemCokeHAAR"
+                android:title="@string/haar_classifier" />
+        </menu>
+    </item>
+
 </menu>

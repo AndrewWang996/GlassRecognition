@@ -15,6 +15,7 @@ public class Preferences {
         int zoom = sharedPref.getInt(STATE_ZOOM, 0);
         return zoom;
     }
+
     public static void onPause(Activity activity, int zoom)
     {
         SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);

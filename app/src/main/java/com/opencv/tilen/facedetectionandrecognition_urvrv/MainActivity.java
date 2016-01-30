@@ -212,40 +212,63 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         int itemId = item.getItemId();
         Global.LogDebug("MainActivity.onOptionsItemSelected(): item name: " + item.getTitle() + " item id: " + itemId);
         switch (itemId) {
+            /*
+            Recognize Coke Bottles
+             */
+            case R.id.itemCokeRecognition:
+                Global.LogDebug("<!-----------------------------------------------------------!>");
+                Global.LogDebug("<!-----------------------------------------------------------!>");
+                Global.LogDebug("<!-----------------------------------------------------------!>");
+                Global.LogDebug("We're testing some coke bottle recognition here. Good Stuff.");
+                Global.LogDebug("<!-----------------------------------------------------------!>");
+                Global.LogDebug("<!-----------------------------------------------------------!>");
+                Global.LogDebug("<!-----------------------------------------------------------!>");
+                return true;
+
             case R.id.itemImageManipulation:
                 Global.LogDebug("MainActivity.onOptionsItemSelected(): R.id.itemImage");
                 Intent intent = new Intent(this,StaticImagesActivity.class);
                 startActivity(intent);
                 return true;
+
             case R.id.itemSubmenuToggleFaceDetection:
                 return true;
+
             case R.id.itemLBPClassifier:
                 isCaptureFaceDetectionUsed = true;
                 faceDetection.setUpCascadeClassifier(faceDetection.getLbpFrontalFaceClassifierPath());
                 return true;
+
             case R.id.itemHAARClassifier:
                 isCaptureFaceDetectionUsed = true;
                 faceDetection.setUpCascadeClassifier(faceDetection.getHaarfrontalFaceClassifierPath());
                 return true;
+
             case R.id.itemToggleFDOff:
                 isCaptureFaceDetectionUsed = false;
                 return true;
+
             case R.id.itemFaceDetection: // submenu Face Detection
                 return true;
+
             case R.id.itemLBP:
                 faceDetection.setUpCascadeClassifier(faceDetection.getLbpFrontalFaceClassifierPath());
                 return true;
+
             case R.id.itemHAAR:
                 faceDetection.setUpCascadeClassifier(faceDetection.getHaarfrontalFaceClassifierPath());
                 return true;
+
             case R.id.itemFaceRecognition:// sub menu of Face Recognition
                 //faceRecognition = FaceRecognition.getInstance(this); is better to not use this, because somebody would tap twice and mistakenly deleted a database
                 return true;
+
             case R.id.itemClearFaceRecognition:
                 // clear database of FaceRecognizer
                 faceRecognition = FaceRecognition.getInstance(this);
                 faceRecognition.clearDatabase();
                 return true;
+
             case R.id.itemSpeechNames:
                 // names that are in Face Recognition Database
                 faceRecognition = FaceRecognition.getInstance(this);
@@ -267,6 +290,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
                 textToSpeech.speak(textToSpeak,TextToSpeech.QUEUE_FLUSH, // old API level method, since we use 19 is ok (deprecated in 21)
                         null);
                 return true;
+
             default:
                 if(itemId < 0) // submenu
                 {

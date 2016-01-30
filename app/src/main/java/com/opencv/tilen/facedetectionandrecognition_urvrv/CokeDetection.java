@@ -18,9 +18,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * Created by Andy Wang on 12.14.2015
+ * Created by Andy on 1.30.2016.
  */
-public class ObjectDetection {
+public class CokeDetection {
 
     // lbp classifier
     private final int lbpFrontalFaceId = R.raw.lbpcascade_frontalface;
@@ -34,38 +34,43 @@ public class ObjectDetection {
     private String haarfrontalFaceClassifierPath;
     private final String haarFrontalFaceClassifierFilename = "haar_cascade_frontalface";
 
+    // haar classifier for coke bottles
+    private final int haarCokeId = R.raw.haarcascade_coke;
+    private String haarCokeClassifier;
+    private String haarCokeClassifierPath;
+    private final String haarCokeClassifierFilename = "haarcascade_coke";
+
 
     private Context mContext;
-    private CascadeClassifier faceDetectorCascadeClassifier;
-    private static ObjectDetection faceDetector = null;
-    private int numberOfFacesInCurrentImage;
+    private CascadeClassifier cokeDetectorCascadeClassifier;
+    private static CokeDetection cokeDetector = null;
+    private int numberOfCokesInCurrentImage;
 
     private String lastClassifierPath; // for optimization
 
 
-    public String getLbpFrontalFaceClassifierPath() {
-        return lbpFrontalFaceClassifierPath;
-    }
-    public String getHaarfrontalFaceClassifierPath() {
-        return haarfrontalFaceClassifierPath;
+    public String getHaarCokeClassifierPath() {
+        return haarCokeClassifierPath;
     }
 
 
-    public int getNumberOfFacesInCurrentImage() {
-        return numberOfFacesInCurrentImage;
+    public int getNumberOfCokesInCurrentImage() {
+        return numberOfCokesInCurrentImage;
     }
 
-    public static ObjectDetection getInstance(Context context) {
+    public static CokeDetection getInstance(Context context) {
         //singleton
-        if (faceDetector == null) {
-            faceDetector = new ObjectDetection(context);
+        if (cokeDetector == null) {
+            cokeDetector = new CokeDetection(context);
         }
-        return faceDetector;
+        return cokeDetector;
     }
 
-    private ObjectDetection(Context context) {
+    private CokeDetection(Context context) {
         lastClassifierPath = "";
         mContext = context;
+
+        /*
         // lbp classifier
         lbpFrontalFaceClassifierPath = getClassifierFilename(lbpFrontalFaceId, lpbFrontalFaceClassifierFilename);
         lbpFrontalFaceClassifier = loadClassifierString(lbpFrontalFaceId, lpbFrontalFaceClassifierFilename);
@@ -74,6 +79,12 @@ public class ObjectDetection {
         haarfrontalFaceClassifierPath = getClassifierFilename(haarFrontalFaceId, haarFrontalFaceClassifierFilename);
         haarfrontalFaceClassifier = loadClassifierString(haarFrontalFaceId, haarFrontalFaceClassifierFilename);
         setUpCascadeClassifier(lbpFrontalFaceClassifierPath);
+        */
+
+        // haar coke classifier
+        haarCokeClassifierPath = getClassifierFilename(haarCokeId, haarCokeClassifierFilename);
+        haarCokeClassifier = loadClassifierString(haarCokeId, haarCokeClassifierFilename);
+        setUpCascadeClassifier(haarCokeClassifierPath);
     }
 
     private String loadClassifierString(int resourceId, String classifierName) {
@@ -92,16 +103,16 @@ public class ObjectDetection {
                 input.close();
             }
         } catch (FileNotFoundException ex) {
-            Global.ErrorDebug("FaceDetection.loadClassifierString(): Couldn't find the file "
+            Global.ErrorDebug("CokeDetection.loadClassifierString(): Couldn't find the file "
                     + resourceId + " " + ex);
             return "";
         } catch (IOException ex) {
-            Global.ErrorDebug("FaceDetection.loadClassifierString(): Error reading file "
+            Global.ErrorDebug("CokeDetection.loadClassifierString(): Error reading file "
                     + resourceId + " " + ex);
             return "";
         }
         String classifierString = stringBuilder.toString();
-        Global.InfoDebug("FaceDetection.loadClassifierString(): " + classifierName + " text: " + classifierString);
+        Global.InfoDebug("CokeDetection.loadClassifierString(): " + classifierName + " text: " + classifierString);
         return classifierString;
     }
 
@@ -124,11 +135,11 @@ public class ObjectDetection {
 
 
             String classifierPath = cascadeFile.getAbsolutePath();
-            Global.LogDebug("FaceDetection.getClassifierName(): Path of file (" + classifierName + "): " + classifierPath);
+            Global.LogDebug("CokeDetection.getClassifierName(): Path of file (" + classifierName + "): " + classifierPath);
             return classifierPath;
 
         } catch (Exception e) {
-            Global.ErrorDebug("FaceDetection.getClassifierName(): Error loading file from raw to temporary location: " + e.toString());
+            Global.ErrorDebug("CokeDetection.getClassifierName(): Error loading file from raw to temporary location: " + e.toString());
             return "";
         }
 
@@ -142,27 +153,27 @@ public class ObjectDetection {
 
     public void setUpCascadeClassifier(String classifierPath) {
         if(!classifierPath.equals(lastClassifierPath)) { // if current classifier is not the same as chosen
-            faceDetectorCascadeClassifier = new CascadeClassifier(classifierPath);
+            cokeDetectorCascadeClassifier = new CascadeClassifier(classifierPath);
             lastClassifierPath = classifierPath;
-            if (faceDetectorCascadeClassifier.empty() == true)
-                Global.ErrorDebug("FaceDetection.getFaceDetectionPicture(): Classifier has not been loaded. ClassifierFilePath: " + lbpFrontalFaceClassifierPath);
+            if (cokeDetectorCascadeClassifier.empty() == true)
+                Global.ErrorDebug("CokeDetection.getFaceDetectionPicture(): Classifier has not been loaded. ClassifierFilePath: " + lbpFrontalFaceClassifierPath);
         }
     }
 
     /**
-     * picture with rectangles for all faces
+     * picture with rectangles for all cokes
      **/
-    public Mat getFaceDetectionPicture(Mat inputPicture) {
+    public Mat getCokeDetectionPicture(Mat inputPicture) {
         //inputPicture = localPictures.getlocalPicture();
-        //Global.TestDebug("FaceDetection.getFaceDetectionPicture: inputPicture " + inputPicture.cols());
+        //Global.TestDebug("CokeDetection.getCokeDetectionPicture: inputPicture " + inputPicture.cols());
 
         // MatOfRect is a special container class for Rect. Probably such as vector in c++ (MatOf...)
         MatOfRect faceDetectionRectangles = new MatOfRect();
         inputPicture = inputPicture.clone();// necessary a clone to avoid referencing the same object
-        faceDetectorCascadeClassifier.detectMultiScale(inputPicture, faceDetectionRectangles);
+        cokeDetectorCascadeClassifier.detectMultiScale(inputPicture, faceDetectionRectangles);
         Rect[] rectangles = faceDetectionRectangles.toArray();
-        Global.LogDebug("FaceDetection.getFaceDetectionPicture() Number of faces: " + rectangles.length);
-        numberOfFacesInCurrentImage = rectangles.length;
+        Global.LogDebug("CokeDetection.getCokeDetectionPicture() Number of faces: " + rectangles.length);
+        numberOfCokesInCurrentImage = rectangles.length;
         for (Rect rect : rectangles) {
             Core.rectangle(inputPicture, rect.tl(), rect.br(), new Scalar(154, 250, 0));
         }
@@ -172,17 +183,17 @@ public class ObjectDetection {
     /**
      * get pictures of all faces in main picture
      **/
-    public Mat[] getFacePictures(Mat inputPicture) {
-        MatOfRect faceDetectionRectangles = new MatOfRect();
-        faceDetectorCascadeClassifier.detectMultiScale(inputPicture, faceDetectionRectangles);
-        Rect[] rectangles = faceDetectionRectangles.toArray();
-        if (rectangles.length == 0) // not face detected
+    public Mat[] getCokePictures(Mat inputPicture) {
+        MatOfRect cokeDetectionRectangles = new MatOfRect();
+        cokeDetectorCascadeClassifier.detectMultiScale(inputPicture, cokeDetectionRectangles);
+        Rect[] rectangles = cokeDetectionRectangles.toArray();
+        if (rectangles.length == 0) // not coke detected
             return null;
-        Mat[] facePictures = new Mat[rectangles.length];
+        Mat[] cokePictures = new Mat[rectangles.length];
         for (int i = 0; i < rectangles.length; i++)
-            facePictures[i] = new Mat(inputPicture, rectangles[i]);
+            cokePictures[i] = new Mat(inputPicture, rectangles[i]);
         //!if there are some error about wrong picture or destroyed clone image!
-        return facePictures;
+        return cokePictures;
     }
 
 }
