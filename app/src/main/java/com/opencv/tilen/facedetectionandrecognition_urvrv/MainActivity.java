@@ -47,6 +47,10 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     private MyJavaCameraView mOpenCvCameraView;
     private FaceDetection faceDetection;
     private FaceRecognition faceRecognition;
+
+    private CokeDetection cokeDetection;
+//    private CokeRecognition cokeRecognition;      // this doesn't make sense?
+
     private Gestures mGestureDetector;
     private RelativeLayout rlMainActivity;
 
@@ -63,6 +67,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     private Mat currentCameraImage;
 
     private boolean isCaptureFaceDetectionUsed = false;
+    private boolean isCaptureCokeDetectionUsed = false;
 
     // slider - can be only used with cards ??
     private Slider mSlider;
@@ -224,6 +229,22 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
                 Global.LogDebug("<!-----------------------------------------------------------!>");
                 Global.LogDebug("<!-----------------------------------------------------------!>");
                 return true;
+
+            case R.id.itemCokeHAAR:
+                Global.LogDebug("<{===========================================================}>");
+                Global.LogDebug("<{===========================================================}>");
+                Global.LogDebug("<{===========================================================}>");
+                Global.LogDebug("Now we have selected the coke HAAR recognition section. GREEAAT!");
+                Global.LogDebug("<{===========================================================}>");
+                Global.LogDebug("<{===========================================================}>");
+                Global.LogDebug("<{===========================================================}>");
+                isCaptureCokeDetectionUsed = true;
+                cokeDetection.setUpCascadeClassifier(cokeDetection.getHaarCokeClassifierPath());
+                Global.LogDebug("We are using " + cokeDetection.getHaarCokeClassifierPath()
+                        + " as our coke detection HAAR classifier path.");
+                return true;
+
+
 
             case R.id.itemImageManipulation:
                 Global.LogDebug("MainActivity.onOptionsItemSelected(): R.id.itemImage");
