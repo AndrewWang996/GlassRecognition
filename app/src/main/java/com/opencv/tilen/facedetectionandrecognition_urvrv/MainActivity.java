@@ -497,6 +497,15 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         }
     }
 
+    /**
+     * Written by Andy Wang
+     * April 12 2016
+     */
+    private void checkCokesOnImage() {
+        currentCameraImage = currentCameraImage.clone();
+        mOpenCvCameraView.disableView();
+
+    }
 
     private Boolean processMotionEventsZooming(MotionEvent event) {
         int pointerCount = event.getPointerCount();
