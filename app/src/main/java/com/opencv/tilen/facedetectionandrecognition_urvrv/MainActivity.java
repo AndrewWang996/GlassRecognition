@@ -66,7 +66,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
 
     private Mat currentCameraImage;
 
-    private boolean isCaptureFaceDetectionUsed = false;
+    private boolean isCaptureFaceDetectionUsed = true;
     private boolean isCaptureCokeDetectionUsed = false;
 
     // slider - can be only used with cards ??
@@ -390,10 +390,27 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         {
             //inputFrame.rgba() - returns an image and is always different (not the same object!)
             // it is the same performance with grey and color Image
+
+            /*
             Mat outputFDPicture = faceDetection.getFaceDetectionPicture(inputFrame.rgba());
             if(faceDetection.getNumberOfFacesInCurrentImage() != 0)
                 currentCameraImage = inputFrame.rgba().clone(); // need to clone because Garbage Collector and referencing
             return outputFDPicture;
+             */
+
+
+            Mat outputCokePicture = inputFrame.rgba();
+
+            outputCokePicture = MyUtils.captureRedRectangles(outputCokePicture);
+            currentCameraImage = outputCokePicture;
+            Global.LogDebug("photo processed");
+
+            /*
+            if(faceDetection.getNumberOfFacesInCurrentImage() != 0)
+                currentCameraImage = inputFrame.rgba().clone(); // need to clone because Garbage Collector and referencing
+            */
+
+            return outputCokePicture;
         }
         else
         {
@@ -504,6 +521,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     private void checkCokesOnImage() {
         currentCameraImage = currentCameraImage.clone();
         mOpenCvCameraView.disableView();
+
 
     }
 

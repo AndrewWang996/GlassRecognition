@@ -31,6 +31,8 @@ import java.util.ArrayList;
  */
 public class MyUtils {
 
+
+    private final static Scalar RED = new Scalar(255, 0, 0);
     /**
      * Written by Andy Wang
      * April 12 / 2016
@@ -73,6 +75,33 @@ public class MyUtils {
         return combo;
     }
 
+
+    /**
+     * Written by Andy Wang
+     * April 26 2016
+     *
+     *
+     */
+    public static List<RotatedRect> computeRectangles(Mat bgrimg, List<RotatedRect> rectangles, int numIterations) {
+        Mat imgCopy;
+        List<RotatedRect> newRectangles = new ArrayList<>(rectangles);
+
+        for(int i=0; i<numIterations; i++) {
+            imgCopy = new Mat(bgrimg.size(), bgrimg.type());
+
+            for (RotatedRect rect : newRectangles) {
+                // Point[] box = new Point[4];
+                // rect.points(box);
+                Core.ellipse(imgCopy, rect, RED, -1);
+            }
+
+            List<Object> CRE = getCRE(imgCopy);
+            newRectangles = (List<RotatedRect>) CRE.get(1);
+        }
+
+        return newRectangles;
+    }
+
     /**
      * Written by Andy Wang
      * April 12 2016
@@ -81,48 +110,67 @@ public class MyUtils {
      * @param rectangles
      */
     public static void drawRectangles(Mat bgrimg, List<RotatedRect> rectangles) {
-        Mat imgCopy = bgrimg.clone();
         for(RotatedRect rect : rectangles) {
-            Point[] box = new Point[4];
-            rect.points(box);
-            Core.rectangle(imgCopy, box[0], box[2], new Scalar(0, 0, 255), -1);
-        }
-
-        List<Object> CRE = getCRE(imgCopy);
-        // Object newContours = CRE.get(0);
-        List<RotatedRect> newRectangles = (List<RotatedRect>) CRE.get(1);
-        // Object newEllipses = CRE.get(2);
-
-        for(RotatedRect rect : newRectangles) {
-            Point[] box = new Point[4];
-            rect.points(box);
-            Core.rectangle(bgrimg, box[0], box[2], new Scalar(0,0,255), 2);
+            Core.ellipse(bgrimg, rect, RED, 2);
         }
     }
 
-    public static void captureRedRectangles(Mat img, String framename) {
+    public static RotatedRect getLargestRectangle(List<RotatedRect> rectangles) {
+        double maxArea = -1;
+        RotatedRect largestRect = null;
+        for(RotatedRect rect : rectangles) {
+            double area = rect.size.width * rect.size.height;
+            if(area > maxArea) {
+                maxArea = area;
+                largestRect = rect.clone();
+            }
+        }
+        return largestRect;
+    }
+
+
+    public static void addCaption(Mat img) {
+        Core.putText(img, "Don't drink the coke!", new Point(50, 50), Core.FONT_HERSHEY_COMPLEX, 1.0, new Scalar(200, 200, 250), 1);
+    }
+
+    public static Mat captureRedRectangles(Mat img) {
+        return captureRedRectangles(img, 40, 124, 11, true);
+    }
+
+    public static Mat captureRedRectangles(Mat img, int R, int BG, int KS, boolean onlyLargestRectangle) {
         Mat hsv = new Mat();
         Imgproc.cvtColor(img, hsv, Imgproc.COLOR_BGR2HSV);
         Mat mask = new Mat();
-        Core.inRange(hsv, new Scalar(172, 172, 40), new Scalar(255, 255, 255), mask);
+        Core.inRange(hsv, new Scalar(R, BG, BG), new Scalar(255, 255, 255), mask);
         Mat res = new Mat();
         Core.bitwise_and(img, img, res, mask);
 
-        int kernel_size = 10;
+        int kernel_size = KS;
         if( (kernel_size & 1) == 0) {
             kernel_size++;
         }
-        // Mat kernel = Mat.ones(kernel_size, kernel_size, CvType.CV_32F);
-        // Core.divide( kernel, Scalar.all(kernel_size * kernel_size), kernel);
+
         Mat dst = new Mat();
         Imgproc.medianBlur(res, dst, kernel_size);
+
+        img = dst;
 
         Mat drawingRects = dst.clone();
         List<Object> CRE = getCRE(drawingRects);
         List<RotatedRect> rectangles = (List<RotatedRect>)CRE.get(1);
-        drawRectangles(drawingRects, rectangles);
 
+        if(onlyLargestRectangle) {
+            RotatedRect largestRect = getLargestRectangle(rectangles);
+            rectangles = new ArrayList<>();
+            if(largestRect != null) {
+                rectangles.add(largestRect);
+            }
+        }
 
+        rectangles = computeRectangles(img, rectangles, 5);
+        drawRectangles(img, rectangles);
+        addCaption(img);
+        return img;
     }
 
     public static Bitmap matToBitmap(Mat inputPicture)
