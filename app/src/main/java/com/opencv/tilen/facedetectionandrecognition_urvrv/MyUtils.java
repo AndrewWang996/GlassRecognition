@@ -33,6 +33,10 @@ public class MyUtils {
 
 
     private final static Scalar RED = new Scalar(255, 0, 0);
+    private final static Scalar GREEN = new Scalar(0, 255, 0);
+    private final static Scalar BLUE = new Scalar(0, 0, 255);
+    private final static Scalar DEFAULT_COLOR = RED;
+
     /**
      * Written by Andy Wang
      * April 12 / 2016
@@ -92,7 +96,7 @@ public class MyUtils {
             for (RotatedRect rect : newRectangles) {
                 // Point[] box = new Point[4];
                 // rect.points(box);
-                Core.ellipse(imgCopy, rect, RED, -1);
+                Core.ellipse(imgCopy, rect, DEFAULT_COLOR, -1);
             }
 
             List<Object> CRE = getCRE(imgCopy);
@@ -111,7 +115,7 @@ public class MyUtils {
      */
     public static void drawRectangles(Mat bgrimg, List<RotatedRect> rectangles) {
         for(RotatedRect rect : rectangles) {
-            Core.ellipse(bgrimg, rect, RED, 2);
+            Core.ellipse(bgrimg, rect, DEFAULT_COLOR, 2);
         }
     }
 
@@ -134,14 +138,17 @@ public class MyUtils {
     }
 
     public static Mat captureRedRectangles(Mat img) {
-        return captureRedRectangles(img, 40, 124, 11, true);
+        return captureRedRectangles(img, 124, 0 , 11, true);
     }
 
     public static Mat captureRedRectangles(Mat img, int R, int BG, int KS, boolean onlyLargestRectangle) {
         Mat hsv = new Mat();
         Imgproc.cvtColor(img, hsv, Imgproc.COLOR_BGR2HSV);
         Mat mask = new Mat();
-        Core.inRange(hsv, new Scalar(R, BG, BG), new Scalar(255, 255, 255), mask);
+
+        // not sure what this method is doing here...
+        Core.inRange(hsv, new Scalar(R, BG, BG), new Scalar(255, 40, 40), mask);
+        
         Mat res = new Mat();
         Core.bitwise_and(img, img, res, mask);
 
@@ -153,7 +160,6 @@ public class MyUtils {
         Mat dst = new Mat();
         Imgproc.medianBlur(res, dst, kernel_size);
 
-        img = dst;
 
         Mat drawingRects = dst.clone();
         List<Object> CRE = getCRE(drawingRects);
