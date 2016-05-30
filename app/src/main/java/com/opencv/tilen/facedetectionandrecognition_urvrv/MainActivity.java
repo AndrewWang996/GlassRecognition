@@ -27,6 +27,7 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.List;
@@ -399,18 +400,35 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
              */
 
 
-            Mat outputCokePicture = inputFrame.rgba();
+            Mat outputCokePicture;
 
-            outputCokePicture = MyUtils.captureRedRectangles(outputCokePicture);
-            currentCameraImage = outputCokePicture;
+            outputCokePicture = Highgui.imread("Images/cokecan.jpg", 1);
+
+            if( outputCokePicture.empty() ) {
+                outputCokePicture = inputFrame.rgba();
+            }
+
+            /*
+            if (outputCokePicture == null ) {
+                Global.LogDebug("OUR PHOTO IS: null");
+            } else {
+                Global.LogDebug("OUR PHOTO IS: " + outputCokePicture);
+                Global.LogDebug("PHOTO SIZE IS: " + outputCokePicture.size());
+            }
+            */
+
+            Mat processedPicture = MyUtils.captureRedRectangles(outputCokePicture);
+            currentCameraImage = processedPicture;
             Global.LogDebug("photo processed");
+
+
 
             /*
             if(faceDetection.getNumberOfFacesInCurrentImage() != 0)
                 currentCameraImage = inputFrame.rgba().clone(); // need to clone because Garbage Collector and referencing
             */
 
-            return outputCokePicture;
+            return processedPicture;
         }
         else
         {

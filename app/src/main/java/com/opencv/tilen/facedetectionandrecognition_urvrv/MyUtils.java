@@ -37,6 +37,19 @@ public class MyUtils {
     private final static Scalar BLUE = new Scalar(0, 0, 255);
     private final static Scalar DEFAULT_COLOR = RED;
 
+    private final static double MIN_COKE_AREA = 10*10; // 10*10 pixel area
+
+
+    private final static double COKE_HEIGHT_WIDTH_RATIO = 140. / 90.;
+        // height to width ratio of a coke can as shown by
+        // https://answers.yahoo.com/question/index?qid=20071225205341AAap6Nj
+        // yes I know Yahoo answers is unreliable...
+        // The current value is given by experimental data.
+    private final static double ASPECT_ERROR = 0.3;
+        // give some flexibility to our requirement for height to width ratio
+        // if a rectangle has a height ratio C_H_W_R - A_E < h < C_H_W_R + A_E
+        // then we classify it as a coke can
+
     /**
      * Written by Andy Wang
      * April 12 / 2016
@@ -138,45 +151,129 @@ public class MyUtils {
     }
 
     public static Mat captureRedRectangles(Mat img) {
-        return captureRedRectangles(img, 124, 0 , 11, true);
+        return captureRedRectangles(img, 120, 70, 11, true);
     }
 
+    /**
+     * Converts a Scalar RGB value to the luma value.
+     * See wikipedia for definition of luma.
+     * Should be a value that vaguely means intensity
+     * @param rgb RGB scalar value
+     * @return as defined
+     */
+    public static double toLuma(Scalar rgb) {
+        double R = rgb.val[0];
+        double G = rgb.val[1];
+        double B = rgb.val[2];
+
+        return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+    }
+
+    /**
+     * Returns if a coke is detected
+     * @param rectangles a list of RotatedRect that bound possible coke cans
+     * @return if one of the rectangles could be a true bound on a coke can
+     */
+    public static boolean cokeDetected(List<RotatedRect> rectangles) {
+        for(RotatedRect rectangle : rectangles) {
+            if(rectangle.size.area() > MIN_COKE_AREA && isCoke(rectangle)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isCoke(RotatedRect rectangle) {
+        double height = rectangle.size.height;
+        double width = rectangle.size.width;
+        if(width > height) {
+            double tmp = width;
+            width = height;
+            height = tmp;
+        }
+        double height_width_ratio = height / width;
+        if(COKE_HEIGHT_WIDTH_RATIO - ASPECT_ERROR < height_width_ratio &&
+            height_width_ratio < COKE_HEIGHT_WIDTH_RATIO + ASPECT_ERROR) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns a new List of RotatedRect that contain rectangles of area strictly greater than
+     *  MIN_COKE_AREA
+     * @param rectangles a list of RotatedRect
+     * @return as described
+     */
+    public static List<RotatedRect> filterNoise(List<RotatedRect> rectangles) {
+        List<RotatedRect> rectanglesC = new ArrayList<>();
+        for(RotatedRect rectangle : rectangles) {
+            if(rectangle.size.area() >= MIN_COKE_AREA) {
+                rectanglesC.add(rectangle);
+            }
+        }
+        return rectanglesC;
+    }
+
+    /**
+     * Returns a Mat (or image) that encapsulates the original image along with
+     *  bounding ellipses (yes, I know the name is captureRedRectangles) that bound possible
+     *  coke cans
+     *
+     * @param img
+     * @param R
+     * @param BG
+     * @param KS
+     * @param onlyLargestRectangle
+     * @return
+     */
     public static Mat captureRedRectangles(Mat img, int R, int BG, int KS, boolean onlyLargestRectangle) {
         Mat hsv = new Mat();
         Imgproc.cvtColor(img, hsv, Imgproc.COLOR_BGR2HSV);
         Mat mask = new Mat();
 
         // not sure what this method is doing here...
-        Core.inRange(hsv, new Scalar(R, BG, BG), new Scalar(255, 40, 40), mask);
-        
+        // but it heavily impacts the effect of the filter
+        //
+        Core.inRange(hsv, new Scalar(R, BG, BG), new Scalar(255, 255, 255), mask);
+
         Mat res = new Mat();
         Core.bitwise_and(img, img, res, mask);
+
+        //Mat grayscale = new Mat();
+        //Imgproc.cvtColor(res, grayscale, Imgproc.COLOR_BGR2GRAY);
+        //Imgproc.threshold(grayscale, grayscale, 100, 255, Imgproc.THRESH_BINARY);
+        //Core.bitwise_and(img, img, res, grayscale);
 
         int kernel_size = KS;
         if( (kernel_size & 1) == 0) {
             kernel_size++;
         }
 
-        Mat dst = new Mat();
-        Imgproc.medianBlur(res, dst, kernel_size);
+        Mat blurredImg = new Mat();
+        Imgproc.medianBlur(res, blurredImg, kernel_size);
 
-
-        Mat drawingRects = dst.clone();
+        Mat drawingRects = blurredImg.clone();
         List<Object> CRE = getCRE(drawingRects);
-        List<RotatedRect> rectangles = (List<RotatedRect>)CRE.get(1);
+        List<RotatedRect> rectangles = filterNoise((List<RotatedRect>)CRE.get(1));
 
         if(onlyLargestRectangle) {
             RotatedRect largestRect = getLargestRectangle(rectangles);
             rectangles = new ArrayList<>();
             if(largestRect != null) {
                 rectangles.add(largestRect);
+                Global.LogDebug("Size of can is : " + largestRect.size.toString());
             }
         }
 
+
         rectangles = computeRectangles(img, rectangles, 5);
-        drawRectangles(img, rectangles);
-        addCaption(img);
-        return img;
+        drawRectangles(blurredImg, rectangles);
+
+        if(cokeDetected(rectangles)) {
+            addCaption(blurredImg);
+        }
+        return blurredImg;
     }
 
     public static Bitmap matToBitmap(Mat inputPicture)
