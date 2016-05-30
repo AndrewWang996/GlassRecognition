@@ -1,5 +1,5 @@
-# Face Detection and Recognition on Google Glass #
-This application enable user to detect faces (real-time) and create their own database for face recognition. It uses OpenCV for Android and JavaCV.
+# Coke Detection on Google Glass #
+This application enable user to detect coke bottles. It uses OpenCV for Android and JavaCV.
 
 ## Setup ##
 (copied from *https://github.com/space150/google-glass-playground/tree/master/OpenCVFaceDetection*) 
@@ -11,5 +11,4 @@ This application enable user to detect faces (real-time) and create their own da
 
 ## Usage ##
 * At normal use application does not detect faces.
-* If you tap with three fingers you reach Main Menu. You have several options to choose from in Main Menu. Firstly you can choose preferred resolutions from camera. In Camera Detection you can choose real-time Face Detection with two different classifiers (laggy). In Image Manipulation you can detect faces on images, which are in drawable folder. In Face Detection you choose, which classifier to use when detecting faces and in Face Recognition you can get all names, which are in Face Recognition database via TextToSpeech API or clear database.
-* To detect faces you simply say 'Ok Google' and then Detect Faces. You can then predict or train individual face by saying 'Ok Google' or by tap to reach menu.
+* If you tap with three fingers you reach Main Menu. Currently, a bug in the screen resolution selection requires you to select the resolution with a single tap, and choose 512x288, or whatever resolution your Glass is. From there, you select Face Recognition (haven't changed this from the project I cloned from), and choose LBP Classifier.
